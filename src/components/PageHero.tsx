@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { fruits, type FruitKey } from "@/data/assets";
 import { Splash } from "./Icons";
+import { PanelNotch } from "./PanelNotch";
 
 /** Rounded colour panel that opens every inner page, in the spirit of the home hero. */
 export function PageHero({
@@ -29,6 +30,7 @@ export function PageHero({
   return (
     <section className="p-[var(--gutter)]">
       <div className="panel relative overflow-hidden px-6 pb-14 pt-36 md:px-14 md:pb-20 md:pt-44" style={{ backgroundColor: bg, color: ink }}>
+        <PanelNotch />
         <div aria-hidden className="splatter absolute inset-x-0 bottom-0 h-1/2 text-paper opacity-25" />
         {decor.map((k, i) => {
           const f = fruits[k];

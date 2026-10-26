@@ -23,7 +23,8 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    // The panel notch is ~100px tall; swap to the pill once it has mostly scrolled out
+    const onScroll = () => setScrolled(window.scrollY > 80);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -57,14 +58,12 @@ export function SiteHeader() {
           <SoundToggle />
           </div>
 
-          {/* Centre: logo notch */}
-          <div className="notch pointer-events-auto absolute left-1/2 top-0 -translate-x-1/2">
-            <Link
-              href="/"
-              aria-label="Elembo — accueil"
-              className="block rounded-b-[26px] bg-cream px-6 pb-3 pt-[calc(var(--gutter)+6px)] transition-all duration-300 group-data-[scrolled]/header:mt-2.5 group-data-[scrolled]/header:rounded-full group-data-[scrolled]/header:px-5 group-data-[scrolled]/header:py-2.5 group-data-[scrolled]/header:shadow-[0_6px_24px_-10px_rgba(42,26,14,.45)] md:px-9 md:pb-4 md:group-data-[scrolled]/header:px-5 md:group-data-[scrolled]/header:py-2.5"
-            >
-              <Logo width={128} priority className="transition-all duration-300 group-data-[scrolled]/header:!w-[96px] md:!w-[150px] md:group-data-[scrolled]/header:!w-[104px]" />
+          {/* Centre: compact logo pill, shown once the panel notch has scrolled away */}
+          <div
+            className="pointer-events-auto invisible absolute left-1/2 top-[calc(var(--gutter)+8px)] -translate-x-1/2 -translate-y-3 opacity-0 transition-all duration-300 group-data-[scrolled]/header:visible group-data-[scrolled]/header:translate-y-0 group-data-[scrolled]/header:opacity-100"
+          >
+            <Link href="/" aria-label="Elembo — accueil" className="block rounded-full bg-cream px-5 py-2.5 shadow-[0_6px_24px_-10px_rgba(42,26,14,.45)]">
+              <Logo width={96} className="md:!w-[104px]" />
             </Link>
           </div>
 

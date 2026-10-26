@@ -7,6 +7,7 @@ import { products } from "@/data/products";
 import { fruits } from "@/data/assets";
 import { getGsap, prefersReducedMotion } from "@/lib/motion";
 import { Splash } from "../Icons";
+import { PanelNotch } from "../PanelNotch";
 
 /** Where the five fruit pieces sit around the bottle (percent of the panel). */
 const SLOTS = [
@@ -218,6 +219,8 @@ export function Hero() {
         className="panel relative h-full overflow-hidden group/hero transition-colors duration-700 data-[following]:cursor-pointer"
         style={{ backgroundColor: theme.bg, color: theme.ink }}
       >
+        <PanelNotch />
+
         {/* Paint splatter texture */}
         <div aria-hidden className="splatter absolute inset-x-0 bottom-0 h-[48%] text-paper opacity-35" />
 

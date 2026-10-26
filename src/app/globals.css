@@ -232,9 +232,8 @@ dialog[open] { animation: dialog-in 260ms var(--ease-out); }
 .notch::before,
 .notch::after {
   content: "";
-  transition: opacity 200ms;
   position: absolute;
-  top: var(--gutter);
+  top: 0;
   width: 26px;
   height: 26px;
   pointer-events: none;
@@ -247,15 +246,11 @@ dialog[open] { animation: dialog-in 260ms var(--ease-out); }
   right: -25px;
   background: radial-gradient(circle at 100% 100%, transparent 25.5px, var(--cream) 26px);
 }
-[data-scrolled] .notch::before,
-[data-scrolled] .notch::after {
-  opacity: 0;
-}
 
 /* ---------- Sound toggle equaliser ---------- */
 .sound-bar {
   transform-origin: bottom;
-  transform: scaleY(0.3);
+  transform: scaleY(0.5);
   transition: transform 300ms var(--ease-out);
 }
 [data-state="on"] .sound-bar {
