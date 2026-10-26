@@ -251,3 +251,21 @@ dialog[open] { animation: dialog-in 260ms var(--ease-out); }
 [data-scrolled] .notch::after {
   opacity: 0;
 }
+
+/* ---------- Sound toggle equaliser ---------- */
+.sound-bar {
+  transform-origin: bottom;
+  transform: scaleY(0.3);
+  transition: transform 300ms var(--ease-out);
+}
+[data-state="on"] .sound-bar {
+  animation: eq 0.9s ease-in-out infinite alternate;
+}
+[data-state="loading"] .sound-bar {
+  animation: eq 0.5s ease-in-out infinite alternate;
+  opacity: 0.6;
+}
+@keyframes eq {
+  from { transform: scaleY(0.25); }
+  to { transform: scaleY(1); }
+}

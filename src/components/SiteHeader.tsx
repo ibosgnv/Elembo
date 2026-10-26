@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "./Logo";
+import { SoundToggle } from "./SoundToggle";
 import { IconArrow, IconClose, IconInstagram, IconMenu, IconTiktok, IconFacebook } from "./Icons";
 import { nav, socials } from "@/data/site";
 
@@ -42,7 +43,8 @@ export function SiteHeader() {
     <>
       <header data-scrolled={scrolled || undefined} className="group/header pointer-events-none fixed inset-x-0 top-0 z-50">
         <div className="relative mx-auto flex items-start justify-between px-[calc(var(--gutter)+12px)] pt-[calc(var(--gutter)+12px)]">
-          {/* Left: social */}
+          {/* Left: social + music */}
+          <div className="pointer-events-auto flex items-center gap-2">
           <a
             href={socials[0].url}
             target="_blank"
@@ -52,6 +54,8 @@ export function SiteHeader() {
           >
             <IconInstagram width={20} height={20} />
           </a>
+          <SoundToggle />
+          </div>
 
           {/* Centre: logo notch */}
           <div className="notch pointer-events-auto absolute left-1/2 top-0 -translate-x-1/2">

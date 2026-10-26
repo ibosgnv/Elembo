@@ -51,6 +51,19 @@ n’est affiché que si ce service répond `2xx`.
 Les boutons WhatsApp apparaissent automatiquement dès que `whatsappNumber` est renseigné dans
 `src/data/site.ts` (aucun numéro WhatsApp n’a été confirmé).
 
+## Musique
+
+Bouton « Musique » dans l’en-tête : rien n’est chargé ni joué tant que le visiteur ne l’active pas.
+La boucle (`public/audio/elembo-soleil.mp3`, 66 s, ~1,2 Mo) est une composition originale générée
+par `scripts/compose-music.py` (style rumba / soukous : guitares en tierces, basse, congas, shaker,
+mi majeur, 116 BPM). Pour utiliser un morceau produit par un musicien, remplacez simplement ce fichier
+(même nom) — idéalement une boucle sans silence au début ni à la fin.
+
+```bash
+python3 scripts/compose-music.py assets-source/music/elembo-soleil.wav   # nécessite numpy et scipy
+ffmpeg -i assets-source/music/elembo-soleil.wav -c:a libmp3lame -q:a 5 public/audio/elembo-soleil.mp3
+```
+
 ## Images
 
 Voir `assets-source/README.md` : origine de chaque fichier, traitements appliqués, et ce qui reste à fournir.

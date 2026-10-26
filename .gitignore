@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# rendered master (reproducible via scripts/compose-music.py)
+/assets-source/music/*.wav

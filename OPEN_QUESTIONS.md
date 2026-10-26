@@ -32,6 +32,8 @@ document « Elembo RDC.pdf ». Tout le reste est listé ici.
 
 ## Contenus
 
+- [ ] **Musique** : la boucle actuelle est une composition générée par script (sans droits tiers). Un morceau original enregistré par un artiste congolais serait plus fort pour la marque.
+
 - [ ] **Photos authentiques** de l’usine, des producteurs et de l’équipe (la photo des fondateurs de l’ancien site est utilisée, 902×873 px : une version plus grande serait préférable) (shooting prévu par le vidéaste en Suisse/RDC). Aucune image générée ne les remplace.
 - [ ] Nom de famille de Pauline (co-fondatrice) et accord pour publier la bio de Christopher.
 - [ ] Police officielle de la marque (la graphiste en Suisse) : remplacer Caveat Brush / Bricolage Grotesque si une licence web est disponible.
