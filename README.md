@@ -78,3 +78,10 @@ Les deux scripts utilisent `puppeteer-core` avec Google Chrome installé localem
 - Le logo officiel n’est jamais recoloré : sur fond coloré il est posé sur une pastille crème.
 - Les animations ne masquent jamais le contenu dans le HTML : si GSAP ne charge pas, tout reste lisible.
   `prefers-reduced-motion` désactive flottement, bandeaux et révélations.
+
+## Déploiement
+
+- Code : dépôt GitHub privé `myglord/elembo`, branche `main`.
+- Hébergement : projet Vercel `elembo` → https://elembo-ten.vercel.app
+- Chaque `git push` sur `main` déploie automatiquement en production ; les autres branches et les pull requests reçoivent une URL de prévisualisation.
+- Variable à définir dans Vercel (Settings → Environment Variables) pour activer le formulaire : `CONTACT_WEBHOOK_URL`.
