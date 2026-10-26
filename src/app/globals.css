@@ -250,10 +250,12 @@ dialog[open] { animation: dialog-in 260ms var(--ease-out); }
 /* ---------- Sound toggle equaliser ---------- */
 .sound-bar {
   transform-origin: bottom;
-  transform: scaleY(0.5);
+  transform: scaleY(1);
+  opacity: 0.55;
   transition: transform 300ms var(--ease-out);
 }
 [data-state="on"] .sound-bar {
+  opacity: 1;
   animation: eq 0.9s ease-in-out infinite alternate;
 }
 [data-state="loading"] .sound-bar {

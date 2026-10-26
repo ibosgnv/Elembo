@@ -96,9 +96,9 @@ export function SoundToggle({ className = "" }: { className?: string }) {
       aria-label={on ? "Couper la musique" : "Écouter la musique"}
       title={on ? "Couper la musique" : "Écouter la musique"}
       data-state={state}
-      className={`group/sound inline-flex h-11 min-w-11 items-center justify-center gap-2 rounded-full border-2 border-current bg-paper/90 px-3 text-ink transition hover:bg-ink hover:text-cream ${className}`}
+      className={`group/sound inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-current bg-paper/90 text-ink transition hover:bg-ink hover:text-cream ${className}`}
     >
-      <span aria-hidden className="flex h-4 items-end gap-[3px]">
+      <span aria-hidden className="flex h-[18px] items-end gap-[3px]">
         {[0.55, 1, 0.7, 0.85].map((h, i) => (
           <span
             key={i}
@@ -106,9 +106,6 @@ export function SoundToggle({ className = "" }: { className?: string }) {
             style={{ height: `${h * 100}%`, animationDelay: `${i * -0.22}s` }}
           />
         ))}
-      </span>
-      <span aria-hidden className="hidden text-[0.75rem] font-bold uppercase tracking-[0.08em] md:inline">
-        {state === "loading" ? "Chargement…" : "Musique"}
       </span>
     </button>
   );
