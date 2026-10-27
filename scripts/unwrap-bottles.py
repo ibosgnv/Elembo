@@ -17,7 +17,12 @@ from PIL import Image
 from scipy.ndimage import map_coordinates, median_filter, uniform_filter1d
 
 SLUGS = ["orange", "ananas", "mangue", "orange-ananas", "mangue-ananas"]
-TEX_W = 1024
+TEX_W = 2048
+# Each label copy uses only the photo within ±PANEL of face-on, where it is sharp
+# and undistorted; the sides between the two copies are filled cleanly instead
+# of stretching the photo's squeezed edges.
+PANEL = np.radians(72)
+FADE = np.radians(10)
 PROFILE_SAMPLES = 160
 out_profiles = {}
 
@@ -62,24 +67,79 @@ for slug in SLUGS:
     gain_curve = np.clip(prof[:8].mean() / np.maximum(prof, 1e-3), 1.0, 1.6)
     gain_curve = 1 + (gain_curve - 1) * 0.7
 
+    # --- label band (white paper rows) in the lower part of the bottle ----
+    rgb = img[..., :3]
+    mx, mn = rgb.max(-1), rgb.min(-1)
+    sat = (mx - mn) / np.maximum(mx, 1e-3)
+    cen = slice(int(center.mean() - 0.45 * radius.max()), int(center.mean() + 0.45 * radius.max()))
+    whiteish = ((lum[:, cen] > 0.80) & (sat[:, cen] < 0.2)).mean(1)
+    cand = np.array([y for y in range(top + int(H * 0.4), bottom + 1) if whiteish[y] > 0.15])
+    label_top, label_bottom = bottom, bottom
+    if len(cand):
+        # merge runs separated by small gaps (dark artwork), keep the longest
+        runs = np.split(cand, np.where(np.diff(cand) > 60)[0] + 1)
+        best = max(runs, key=len)
+        label_top, label_bottom = int(best[0]) - 4, int(best[-1]) + 4
+    # paper colour per row: the bright, unsaturated pixels of the label
+    paper = np.ones((H, 3), dtype=np.float32)
+    for i, y in enumerate(range(top, bottom + 1)):
+        if label_top <= y <= label_bottom:
+            row = rgb[y, cen][(lum[y, cen] > 0.80) & (sat[y, cen] < 0.2)]
+            if len(row):
+                paper[i] = np.median(row, axis=0)
+    paper = uniform_filter1d(paper, 25, axis=0)
+
     # --- unwrap -------------------------------------------------------------
     theta = (np.arange(TEX_W) + 0.5) / TEX_W * 2 * np.pi  # u=0 faces the camera
-    # Front half samples the photo left→right; the back half samples it again,
-    # flipped, so the artwork reads correctly (not mirrored) seen from behind.
-    # The two panels meet at the sides, like the seam of a wrap-around label.
-    sin_t = np.sin(theta) * np.where(np.cos(theta) >= 0, 1.0, -1.0)
-    ys = np.repeat(np.arange(top, bottom + 1)[:, None], TEX_W, axis=1).astype(np.float32)
-    xs = center[:, None] + radius[:, None] * 0.975 * sin_t[None, :]
-    tex = np.zeros((H, TEX_W, 4), dtype=np.float32)
-    for c in range(4):
-        tex[..., c] = map_coordinates(img[..., c], [ys, xs], order=1, mode="nearest")
-    s_abs = np.abs(0.975 * sin_t)
-    g = np.interp(s_abs, s_bins, gain_curve)[None, :, None]
-    tex[..., :3] = np.clip(tex[..., :3] * g, 0, 1)
-    # rows where the bottle is very thin (cap edge) keep their alpha soft
-    Image.fromarray((tex * 255).round().astype(np.uint8), "RGBA").save(
-        f"public/images/bottles/3d/{slug}.webp", quality=88, alpha_quality=100, method=6
+    phi = (theta + np.pi) % (2 * np.pi) - np.pi  # (-pi, pi]
+    back = np.abs(phi) > np.pi / 2
+    # local angle within the nearest copy; the back copy is sampled so it reads
+    # correctly (not mirrored) when seen from behind
+    alpha = np.where(back, phi - np.sign(phi) * np.pi, phi)
+    inside = np.abs(alpha) <= PANEL
+
+    def sample(alpha_cols):
+        xs = center[:, None] + radius[:, None] * 0.975 * np.sin(alpha_cols)[None, :]
+        ys = np.repeat(np.arange(top, bottom + 1)[:, None], len(alpha_cols), axis=1).astype(np.float32)
+        out = np.zeros((H, len(alpha_cols), 4), dtype=np.float32)
+        for c in range(4):
+            out[..., c] = map_coordinates(img[..., c], [ys, xs], order=3, mode="nearest")
+        g = np.interp(np.abs(0.975 * np.sin(alpha_cols)), s_bins, gain_curve)[None, :, None]
+        out[..., :3] = np.clip(out[..., :3] * g, 0, 1)
+        return out
+
+    tex = sample(np.clip(alpha, -PANEL, PANEL))
+
+    # Sides (between the two copies): angular distance past the panel edge
+    over = np.clip(np.abs(alpha) - PANEL, 0, None)
+    gap = np.pi / 2 - PANEL  # half-width of each side gap
+    # glass / juice / cap rows: blend two mirror reflections back into the
+    # clean panel, so colour and ribs continue without a seam
+    refl_front = np.sign(alpha) * (PANEL - np.minimum(over, PANEL))
+    t = np.clip(over / gap, 0, 1)[None, :, None] * 0.5  # 0 at panel edge → 0.5 at gap centre
+    mirrored = sample(refl_front)
+    blend = tex * 1  # panel edge value (clamped sample) continues smoothly
+    side_fill = mirrored * (1 - t) + mirrored[:, ::-1] * t
+    side = (~inside)[None, :, None]
+    tex = np.where(side, side_fill, tex)
+
+    # label rows: fade the artwork into plain label paper across the sides
+    rows = np.arange(top, bottom + 1)
+    is_label = ((rows >= label_top) & (rows <= label_bottom))[:, None, None]
+    fade = np.clip(1 - (over - 0) / FADE, 0, 1)[None, :, None]  # 1 inside, → 0 past FADE
+    # soften the artwork edge a little inside the panel too
+    fade = fade * np.clip((PANEL - np.abs(alpha)) / np.radians(4) + 1, 0, 1)[None, :, None]
+    art = sample(np.clip(alpha, -PANEL, PANEL))
+    paper_rgba = np.concatenate([paper[:, None, :].repeat(TEX_W, 1), tex[..., 3:4]], axis=-1)
+    label_tex = art * fade + paper_rgba * (1 - fade)
+    label_tex[..., 3] = tex[..., 3]
+    tex = np.where(is_label, label_tex, tex)
+    print(f"  label rows {label_top - top}–{label_bottom - top} of {H}")
+
+    Image.fromarray((np.clip(tex, 0, 1) * 255).round().astype(np.uint8), "RGBA").save(
+        f"public/images/bottles/3d/{slug}.webp", quality=90, alpha_quality=100, method=6
     )
+
 
     # --- profile (bottom → top), in source pixels ---------------------------
     sample_rows = np.linspace(H - 1, 0, PROFILE_SAMPLES)

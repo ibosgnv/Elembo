@@ -56,8 +56,8 @@ Les boutons WhatsApp apparaissent automatiquement dès que `whatsappNumber` est 
 La bouteille du hero tourne en vraie 3D (three.js, chargé après l’affichage de la page). Pour chaque
 saveur, `scripts/unwrap-bottles.py` mesure la silhouette de la bouteille (canal alpha) et « déroule » la
 photo sur 360° : `public/images/bottles/3d/<saveur>.webp` + `src/data/bottle-profiles.json`. Les photos
-ne montrant que la face avant, l’arrière reprend la même étiquette (non inversée), avec une jointure
-sur les côtés comme une vraie étiquette. Avec « mouvement réduit » ou sans WebGL, l’image fixe s’affiche.
+ne montrant que la face avant, chaque face reprend la partie nette de l’étiquette (±72° autour du centre,
+non inversée) et les côtés deviennent du papier d’étiquette blanc : pas de raccord étiré. Avec « mouvement réduit » ou sans WebGL, l’image fixe s’affiche.
 
 ```bash
 python3 scripts/unwrap-bottles.py   # à relancer si une photo de bouteille change
