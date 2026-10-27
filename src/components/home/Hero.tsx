@@ -8,6 +8,7 @@ import { fruits } from "@/data/assets";
 import { getGsap, prefersReducedMotion } from "@/lib/motion";
 import { Splash } from "../Icons";
 import { PanelNotch } from "../PanelNotch";
+import { Bottle3D } from "./Bottle3D";
 
 /** Where the five fruit pieces sit around the bottle (percent of the panel). */
 const SLOTS = [
@@ -21,6 +22,7 @@ const SLOTS = [
 export function Hero() {
   const [active, setActive] = useState(0);
   const [shown, setShown] = useState(0); // flavour whose decor/text is currently displayed
+  const [is3D, setIs3D] = useState(false); // WebGL bottle rendered; flat images become the fallback
   const panelRef = useRef<HTMLDivElement>(null);
   const bottleRefs = useRef<(HTMLDivElement | null)[]>([]);
   const decorRef = useRef<HTMLDivElement>(null);
@@ -263,6 +265,11 @@ export function Hero() {
         {/* Bottles — all five share one crop box so they line up exactly */}
         <div ref={(el) => { parallaxRefs.current.bottle = el; }} className="pointer-events-none absolute inset-0 flex items-end justify-center pb-[19svh] md:items-center md:pb-0">
           <div className="float relative h-[min(45svh,400px)] md:h-[min(70svh,720px)] md:max-h-[86%]" style={{ aspectRatio: "380 / 1504", ["--tilt" as string]: "-7deg" }}>
+            {/* Turning 3D bottle; wider than the image box so the lean never clips */}
+            <div className="absolute left-1/2 top-1/2 h-[110%] -translate-x-1/2 -translate-y-1/2" style={{ aspectRatio: "0.7" }}>
+              <Bottle3D slug={products[active].slug} onReady={setIs3D} />
+            </div>
+            <div className={`absolute inset-0 transition-opacity duration-300 ${is3D ? "opacity-0" : ""}`}>
             {products.map((p, i) => (
               <div key={p.slug} ref={(el) => { bottleRefs.current[i] = el; }} className="absolute inset-0" style={{ opacity: i === 0 ? 1 : 0 }}>
                 <Image
@@ -278,6 +285,7 @@ export function Hero() {
                 />
               </div>
             ))}
+            </div>
           </div>
         </div>
 

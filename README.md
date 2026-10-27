@@ -51,6 +51,18 @@ n’est affiché que si ce service répond `2xx`.
 Les boutons WhatsApp apparaissent automatiquement dès que `whatsappNumber` est renseigné dans
 `src/data/site.ts` (aucun numéro WhatsApp n’a été confirmé).
 
+## Bouteille 3D
+
+La bouteille du hero tourne en vraie 3D (three.js, chargé après l’affichage de la page). Pour chaque
+saveur, `scripts/unwrap-bottles.py` mesure la silhouette de la bouteille (canal alpha) et « déroule » la
+photo sur 360° : `public/images/bottles/3d/<saveur>.webp` + `src/data/bottle-profiles.json`. Les photos
+ne montrant que la face avant, l’arrière reprend la même étiquette (non inversée), avec une jointure
+sur les côtés comme une vraie étiquette. Avec « mouvement réduit » ou sans WebGL, l’image fixe s’affiche.
+
+```bash
+python3 scripts/unwrap-bottles.py   # à relancer si une photo de bouteille change
+```
+
 ## Musique
 
 Bouton « Musique » dans l’en-tête : rien n’est chargé ni joué tant que le visiteur ne l’active pas.
